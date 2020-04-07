@@ -1,0 +1,10 @@
+char file_list6[40];
+char file_list7[40];
+char read_file6[100]; 
+char files06[100];
+int count6 = 0; 
+int c6;
+int cycle_count6;
+int last6 = '\n';
+int bytes6;
+unsigned char data6[1024];

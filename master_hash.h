@@ -1,0 +1,14 @@
+char file_list[40];
+char file_list2[40];
+char read_file[100]; 
+char hash01[MD5_DIGEST_LENGTH]; 
+char files01[100];
+int count = 0; 
+int c;
+int cycle_count;
+int last = '\n';
+unsigned char ml[MD5_DIGEST_LENGTH];
+int bytes;
+unsigned char data[1024];
+MD5_CTX mdContext;
+int hours, minutes, seconds, day, month, year;
