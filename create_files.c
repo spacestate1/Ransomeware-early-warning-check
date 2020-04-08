@@ -48,7 +48,14 @@ int create_file(void) {
 	      if (remove(read_file1) == 0)
                   printf("Old %s removed successfully\n", read_file1);
               printf("File %s created.\n",read_file1);
-	      FILE *newfile = fopen(read_file1, "ab+");
+	      FILE *newfile = fopen(read_file1, "a+");
+	      if( newfile == NULL ) {
+              // Error, as expected.
+              perror( "Error opening file" );
+              printf( "Error code opening file: %d\n", errno );
+              printf( "Error opening file: %s\n", strerror( errno ) );
+              exit(-1);
+               }
               int num01;
               FILE *fp;
               fp = fopen("/dev/urandom", "r");

@@ -13,9 +13,9 @@ int selection;
   printf("\n\t ");
  printf("\n\tMake Selection");
  printf("\n\t------------------------------");
- printf("\n\n\t 1. Create initial file hash  -i WARNING: removes old file hash!");
- printf("\n\t 2. Check and compare file hashes to originals -c");
- printf("\n\t 3. Create files from file_list -f WARNING: removes previous created files!  ");
+ printf("\n\t 1. Create files from file_list -f WARNING: removes previous created files!  ");
+ printf("\n\t 2. Create initial file hash -i    WARNING: removes old file hash!");
+ printf("\n\t 3. Check and compare file hashes to originals -c");
  printf("\n\t 4. Check random files exist -e  ");
  printf("\n\t 5. EXIT");
  printf("\n\n Enter your Choice: ");
@@ -25,16 +25,16 @@ if(scanf("%d",&selection) >=0 && selection <=4)  {
     switch(selection) {
       case 1:
         printf("Files hashed:\n");
-        master_hash();
+	create_file();
         break;
 
       case 2:
         printf("Checking for filelist...\n");
-        master_check();
+	master_hash();
         break;
 
       case 3:
-        create_file();
+	master_check(); 
         break;
 
       case 4:
