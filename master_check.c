@@ -101,6 +101,11 @@ int master_check(void) {
 
 
               FILE* hashfile = fopen("master_hash.csv", "r");
+	         if (hashfile == NULL)
+                 {
+                    printf("Error opening master_hash.csv file!\n");
+                    exit(1);
+                 }
 	      FILE *old_hashes = fopen("old_hashes.csv", "a");
               char line[1024];
               new_cycle=0;
