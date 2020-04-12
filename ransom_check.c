@@ -29,7 +29,7 @@ if(scanf("%d",&selection) >=0 && selection <=4)  {
         break;
 
       case 2:
-        printf("Checking for filelist...\n");
+        printf("Checking filelist for file changes...\n");
 	master_hash();
         break;
 

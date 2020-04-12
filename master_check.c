@@ -7,9 +7,9 @@
 #include <inttypes.h>
 #include "master_check.h"
 #include <errno.h>
+#include <stdbool.h>
 
-
-
+#define LSIZ 500
 
 ///////////// CSV parser ////////////////////
 const char* find_column(char* line, int num)
@@ -24,8 +24,39 @@ const char* find_column(char* line, int num)
     }
     return NULL;
 }
+///////////// array compare ////////////////////
+bool array_c(char *a_string, char array[][LSIZ], size_t arraySize)
+{
+    for (int array_count = 0; array_count < arraySize; ++array_count) {
+       //if (array[array_count] == a_string) 
+       if (strcmp(array[array_count], a_string)== 0){
 
+           return (true);
+       }
+    }
 
+    return (false);
+}
+//////////////  Remove Blanks From array //////////////
+size_t remove_blank( char ( *s )[10], size_t n )
+{
+    size_t blank_count = 0;
+
+    while ( blank_count < n && !( s[blank_count][0] == '\0' ) ) ++blank_count;
+
+    for ( size_t j = blank_count + 1; j < n; j++ )
+    {
+        if ( s[j][0] != '\0' )
+        {
+            strcpy( s[blank_count], s[j] );
+            ++blank_count;
+        }
+    }
+
+    for( size_t j = blank_count; j < n; j++ ) s[j][0] = '\0';
+
+    return blank_count;
+}
 
 int master_check(void) {
 
@@ -128,56 +159,115 @@ int master_check(void) {
 	             free(tmp);
 	       }
 	     fclose(old_hashes);
-//////////////// Compare Output files ////////////////
-void compareFiles(FILE *fp1, FILE *fp2) 
-{ 
-    char ch1 = getc(fp1); 
-    char ch2 = getc(fp2); 
-  
-    // error keeps track of number of errors 
-    int error = 0, pos = 0, line = 0; 
-  
-    // iterate loop till end of file 
-    while (ch1 != EOF && ch2 != EOF) 
-    { 
-        pos++; 
-        if (ch1 == '\n' && ch2 == '\n') 
-        { 
-            line++; 
-            pos = 0; 
-        } 
-        // error is incremented 
-        if (ch1 != ch2) 
-        { 
-            error++; 
-            printf("Line Number : %d \tError"
-               " Position : %d \n", line, pos); 
-        } 
-        ch1 = getc(fp1); 
-        ch2 = getc(fp2); 
-    } 
-  
-    printf("Total Errors : %d\n", error); 
-}
 
+//////////////// Compare Output files ////////////////
+/////////////// Count lines in file one based on newline ///////////////
+    int finalcount = 0; 
     int ret; 
     int ret2; 
+    char finalc; 
+    FILE *newfile01 = fopen("new_hashes.csv", "r"); 
 
-    FILE *fp1 = fopen("old_hashes.csv", "r");
-    FILE *fp2 = fopen("new_hashes.csv", "r");
-
-    if (fp1 == NULL || fp2 == NULL)
+    if (newfile01 == NULL)
     {
-       printf("Error : Files not open");
-       exit(0);
+        printf("Could not open file\n");
+        return 0;
     }
 
-    compareFiles(fp1, fp2);
+    for (finalc = getc(newfile01); finalc != EOF; finalc = getc(newfile01))
+        if (finalc == '\n')
+            finalcount = finalcount + 1;
+         //printf("new file lines: %d\n", finalcount);  
 
-    fclose(fp1);
-    fclose(fp2);
-    ret = remove("old_hashes.csv"); 
-    ret2 = remove("new_hashes.csv");
-    return 0;
+    fclose(newfile01);
+/////////////// Count lines in file two based on newline ///////////////
+    int finalcount2 = 0;
+
+    char finalc2;
+    FILE *oldfile01 = fopen("old_hashes.csv", "r");
+
+    if (oldfile01 == NULL)
+    {
+        printf("Could not open file\n");
+        return 0;
+    }
+
+    for (finalc2 = getc(oldfile01); finalc2 != EOF; finalc2 = getc(oldfile01))
+        if (finalc2 == '\n') 
+            finalcount2 = finalcount2 + 1;
+
+    fclose(oldfile01);
+
+  /////////////// Create Array from file one  ///////////////
+
+
+
+    char finalline[finalcount][LSIZ];
+    int finali = 0;
+    int tot = 0;
+    FILE * fptr = fopen("new_hashes.csv", "r");
+    while(fgets(finalline[finali], LSIZ, fptr)) 
+	{
+        finalline[finali][strlen(finalline[finali]) - 1] = '\0';
+        finali++;
+    }
+    tot = finali;
+/////////////// Create Array from file two  ///////////////
+   char finalline2[finalcount2][LSIZ];
+    int finali2 = 0;
+    int tot2 = 0;
+    FILE * fptr2 = fopen("old_hashes.csv", "r");
+    while(fgets(finalline2[finali2], LSIZ, fptr2))
+        {
+        finalline2[finali2][strlen(finalline2[finali2]) - 1] = '\0';
+        finali2++;
+    }
+    tot2 = finali2;
+    
+    
+ ////////// Compare Files From two arrays //////////   
+int matches = 0;
+int mis_matches = 0; 
+int mis_count = 0;
+char mismatches_found[finalcount][LSIZ];
+    for(finali2 = 0; finali2 < finalcount; ++finali2)
+    {  
+	if(!array_c(finalline[finali2],finalline2, finalcount2)) 
+	{
+	  strcpy(mismatches_found[mis_matches], finalline2[finali2]);
+	  mis_matches++;
+	   }
+       for(finali = 0; finali < finalcount; ++finali)
+          {
+            if (strcmp(finalline2[finali2], finalline[finali]) == 0)
+             { 
+	       matches++;
+            } 
+
+	  else {
+		 continue; 
+	  } 
+	}
+    }
+  printf("MAtches %d\n", matches); 
       
+  if (matches ==  finalcount)
+  {  printf("No Errors found\n"); 
+     printf("%d out of %d Matches found.\n", matches, finalcount);
+  }
+  else 
+  { 
+    printf("ERROR %d matches out of %d found\n", matches, finalcount2); 
+
+  }
+  for (mis_count= 0; mis_count <  mis_matches; mis_count++){
+	  printf("not matching %s\n", mismatches_found[mis_count]); 
+  }
+	
+  
+ ret = remove("old_hashes.csv");
+ ret2 = remove("new_hashes.csv");
+return 0; 
+    
+
 }
